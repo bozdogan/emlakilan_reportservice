@@ -9,8 +9,8 @@ class ReportserviceApplicationTests {
 
     @Test
     void itDividesBy10() {
-        int result = 1740 / 10;
-        int expected = 17;
+        double result = 17.40 / 10;
+        double expected = 1.74;
 
         assertThat(result).isEqualTo(expected);
     }

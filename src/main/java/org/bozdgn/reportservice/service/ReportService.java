@@ -2,6 +2,7 @@ package org.bozdgn.reportservice.service;
 
 import org.bozdgn.reportservice.dto.ReportOutput;
 import org.bozdgn.reportservice.dto.UpdateOutput;
+import org.bozdgn.reportservice.dto.messaging.UpdateRequestMessage;
 import org.bozdgn.reportservice.messaging.MessageSender;
 import org.bozdgn.reportservice.model.Report;
 import org.bozdgn.reportservice.repository.ReportRepository;
@@ -44,7 +45,7 @@ public class ReportService {
     }
 
     public UpdateOutput updateReport(Long propertyID) {
-        messageSender.sendPropertyUpdateRequest(propertyID);
+        messageSender.sendPropertyUpdateRequest(new UpdateRequestMessage(propertyID));
         return new UpdateOutput(
                 "Report update request saved.",
                 String.format(REPORT_URL_TEMPLATE, propertyID));
