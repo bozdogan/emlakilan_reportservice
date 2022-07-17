@@ -5,7 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDate;
 
 @Entity
@@ -15,8 +18,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Report {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "report_seq")
-    @SequenceGenerator(name = "report_seq", sequenceName = "report_seq", allocationSize = 1)
     @Column(name = "property_id")
     Long propertyId;
 
