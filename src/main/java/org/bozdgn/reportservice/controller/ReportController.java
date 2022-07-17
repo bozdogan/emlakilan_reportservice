@@ -25,7 +25,7 @@ public class ReportController {
     @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @PostMapping("/{id}")
     public UpdateOutput updateReport(@PathVariable("id") Long propertyID) {
-        return reportService.updateReport(propertyID);
+        return reportService.triggerReportUpdate(propertyID);
     }
 
 }

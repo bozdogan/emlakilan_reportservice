@@ -2,20 +2,25 @@ package org.bozdgn.reportservice.service;
 
 import org.bozdgn.reportservice.dto.ReportOutput;
 import org.bozdgn.reportservice.dto.UpdateOutput;
+import org.bozdgn.reportservice.dto.messaging.PropertyMessage;
 import org.bozdgn.reportservice.dto.messaging.UpdateRequestMessage;
 import org.bozdgn.reportservice.messaging.MessageSender;
 import org.bozdgn.reportservice.model.Report;
 import org.bozdgn.reportservice.repository.ReportRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 public class ReportService {
 
     private static final String REPORT_URL_TEMPLATE = "/api/report/%s";
+    private static final String REPORT_BODY_TEMPLATE = "The advertisement with id %s created by %s %s ago. It is viewed %s times.";
     private final ReportRepository repository;
     private final MessageSender messageSender;
 
@@ -44,11 +49,28 @@ public class ReportService {
         }
     }
 
-    public UpdateOutput updateReport(Long propertyID) {
+    public UpdateOutput triggerReportUpdate(Long propertyID) {
         messageSender.sendPropertyUpdateRequest(new UpdateRequestMessage(propertyID));
         return new UpdateOutput(
                 "Report update request saved.",
                 String.format(REPORT_URL_TEMPLATE, propertyID));
+    }
+
+    public ReportOutput save(PropertyMessage propertyInfo) {
+        Report report = repository.findById(propertyInfo.getPropertyID()).orElse(new Report());
+        report.setPropertyId(propertyInfo.getPropertyID());
+        report.setReportBody(String.format(REPORT_BODY_TEMPLATE,
+                propertyInfo.getPropertyID(),
+                propertyInfo.getAuthor(),
+                DAYS.between(propertyInfo.getDateCreated(), LocalDate.now()),
+                propertyInfo.getViewCount()));
+        report.setLastUpdated(LocalDate.now());
+
+        Report savedReport = repository.save(report);
+        return new ReportOutput(
+                savedReport.getPropertyId(),
+                savedReport.getReportBody(),
+                savedReport.getLastUpdated());
     }
 
 }
