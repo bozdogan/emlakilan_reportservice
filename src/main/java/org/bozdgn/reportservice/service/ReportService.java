@@ -10,6 +10,7 @@ import org.bozdgn.reportservice.repository.ReportRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,7 +21,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class ReportService {
 
     private static final String REPORT_URL_TEMPLATE = "/api/report/%s";
-    private static final String REPORT_BODY_TEMPLATE = "The advertisement with id %s created by %s %s ago. It is viewed %s times.";
+    private static final String REPORT_BODY_TEMPLATE = "The advertisement #%s was created by %s %s days ago. It has been viewed %s times.";
     private final ReportRepository repository;
     private final MessageSender messageSender;
 
@@ -58,11 +59,13 @@ public class ReportService {
 
     public ReportOutput save(PropertyMessage propertyInfo) {
         Report report = repository.findById(propertyInfo.getPropertyID()).orElse(new Report());
+        long elapsedDays = DAYS.between(propertyInfo.getDateCreated().atStartOfDay(), LocalDateTime.now());
+
         report.setPropertyId(propertyInfo.getPropertyID());
         report.setReportBody(String.format(REPORT_BODY_TEMPLATE,
                 propertyInfo.getPropertyID(),
                 propertyInfo.getAuthor(),
-                DAYS.between(propertyInfo.getDateCreated(), LocalDate.now()),
+                elapsedDays,
                 propertyInfo.getViewCount()));
         report.setLastUpdated(LocalDate.now());
 
